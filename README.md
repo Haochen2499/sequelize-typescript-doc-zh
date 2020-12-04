@@ -156,13 +156,12 @@ class Person extends Model<Person> {}
 | `@DeletedAt` | 设置 `timestamps=true`, `paranoid=true` 和 `deletedAt='deletionDate'` |
 
 ### `@Column`
-`@Column` 注解能在不传入任何参数下使用。annotation can be used without passing any parameters. 不过有必要去传入参数来让 js 类型可以被自行推断(查看 [类型推断](#type-inference) 细节).
+`@Column` 注解能在不传入任何参数下使用。 传入参数来让 js 类型可以被自行推断是相当有必要的(查看 [类型推断](#type-inference) 细节).
 ```typescript
   @Column
   name: string;
 ```
 如果类型不能或者不应该被推断，请使用
-If the type cannot or should not be inferred, use:
 ```typescript
 import {DataType} from 'sequelize-typescript';
 
@@ -170,7 +169,6 @@ import {DataType} from 'sequelize-typescript';
   name: string;
 ```
 或者，对于更详细的描述，可以使用对象来描述
-Or for a more detailed column description, use an object literal
 (所有的 sequelize 的 [模型属性选项](https://sequelize.org/v5/manual/models-definition.html#configuration) 都可以使用):
 ```typescript
   @Column({
