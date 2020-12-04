@@ -156,7 +156,7 @@ class Person extends Model<Person> {}
 | `@DeletedAt` | 设置 `timestamps=true`, `paranoid=true` 和 `deletedAt='deletionDate'` |
 
 ### `@Column`
-`@Column` 注解能在不传入任何参数下使用。 传入参数来让 js 类型可以被自行推断是相当有必要的(查看 [类型推断](#type-inference) 细节).
+`@Column` 注解能在不传入任何参数下使用，不过传入参数来让 js 类型可以被自行推断是相当有必要的(查看 [类型推断](#type-inference) 细节).
 ```typescript
   @Column
   name: string;
