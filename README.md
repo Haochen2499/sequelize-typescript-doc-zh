@@ -1,7 +1,8 @@
 # sequelize-typescript 中文文档
-提供给 sequelize (v5) 使用的装饰器和一些其他功能.
+提供给 sequelize (v5) 使用的装饰器和一些其他功能。
 
-### 施工中 🚧
+sequelize-typescript [项目地址](https://github.com/RobinBuschmann/sequelize-typescript)
+
 
  - [安装](#安装)
  - [升级到 `sequelize-typescript@1`](#升级到`sequelize-typescript@1`)
@@ -10,14 +11,14 @@
    - [`@Column` API](#column-api)
  - [使用](#使用)
    - [配置](#配置)
-   - [globs](#globs)
+   - [globs 匹配](#globs-匹配)
    - [模型路径解析](#模型路径解析)
  - [模型关联](#模型关联)
    - [一对多](#一对多)
    - [多对多](#多对多)
    - [一对一](#一对一)
    - [`@ForeignKey`, `@BelongsTo`, `@HasMany`, `@HasOne`, `@BelongsToMany` API](#foreignkey-belongsto-hasmany-hasone-belongstomany-api)
-   - [生成 getter 和 setter](#type-safe-usage-of-auto-generated-functions)
+   - [使用 getter 和 setter](#type-safe-usage-of-auto-generated-functions)
    - [同一模型的多种关联](#multiple-relations-of-same-models)
  - [索引](#indexes)
    - [`@Index` API](#index)
@@ -29,7 +30,7 @@
    - [repository 模式的限制](#limitations-of-repository-mode)
  - [模型校验](#model-validation)
  - [作用域](#scopes)
- - [Hooks](#hooks)
+ - [Hooks 钩子](#hooks)
  - [为何使用 `() => Model`?](#user-content-why---model)
  - [风格推荐和限制](#recommendations-and-limitations)
 
@@ -58,12 +59,12 @@ npm install sequelize-typescript@0.6
 ```
 
 ## 升级到`sequelize-typescript@1`
-`sequelize-typescript@1` only works with `sequelize@5>=`.
-For `sequelize@4` & `sequelize@3` use `sequelize-typescript@0.6`.
+`sequelize-typescript@1` 只能在 `sequelize@5>=` 版本下运行。
+如果你使用 `sequelize@4` 或者 `sequelize@3` ， 请使用 `sequelize-typescript@0.6`。
 
 ### 破坏性更新
-`sequelize@5` 的破坏性更新同样会影响 `sequelize-typescript@1`.
-查看 [升级到 V5](https://github.com/sequelize/sequelize/blob/master/docs/upgrade-to-v5.md) 详情.
+`sequelize@5` 的破坏性更新同样会影响 `sequelize-typescript@1`。
+查看 [升级到 V5](https://github.com/sequelize/sequelize/blob/master/docs/upgrade-to-v5.md) 详情。
 
 #### 官方 TypeScript 支持
 sequelize-typescript 目前使用 sequlize 官方的 TypeScript 定义
@@ -71,7 +72,7 @@ sequelize-typescript 目前使用 sequlize 官方的 TypeScript 定义
 请注意以下事项：
 - 绝大部分之前版本 sequelize-typescript 所提供的 interface 被官方所替代
 - 不再使用`@types/sequelize`
-- `@types/bluebird` 不再是一个显示依赖
+- `@types/bluebird` 不再是一个显式依赖
 - 官方类型声明没 sequelize-typescript 之前版本的严格
 
 #### Sequelize 选项
@@ -79,7 +80,7 @@ sequelize-typescript 目前使用 sequlize 官方的 TypeScript 定义
 - `modelPaths` 重命名为 `models`
 
 #### 作用域 选项
-`@Scopes` 和 `@DefaultScope` 装饰器目前接收匿名函数作为选项
+`@Scopes` 和 `@DefaultScope` 装饰器目前接收匿名函数作为参数
 ```ts
 @DefaultScope(() => ({...}))
 @Scopes(() => ({...}))
@@ -236,12 +237,12 @@ class Person extends Model<Person> {
 import {Sequelize} from 'sequelize-typescript';
 
 const sequelize =  new Sequelize({
-        database: 'some_db',
-        dialect: 'sqlite',
-        username: 'root',
-        password: '',
-        storage: ':memory:',
-        models: [__dirname + '/models'], // or [Player, Team],
+  database: 'some_db',
+  dialect: 'sqlite',
+  username: 'root',
+  password: '',
+  storage: ':memory:',
+  models: [__dirname + '/models'], // or [Player, Team],
 });
 ```
 在你使用你的模型之前，你必须告诉 sequelize 去那里找到这些模型。所以要么将 `models` 写到 sequelize 配置中，要么通过调用 `sequelize.addModels([Person])` 或 `sequelize.addModels([__dirname + '/models'])` 来添加：
@@ -250,13 +251,13 @@ const sequelize =  new Sequelize({
 sequelize.addModels([Person]);
 sequelize.addModels(['path/to/models']);
 ```
-### globs
+### globs 匹配
 ```typescript
 import {Sequelize} from 'sequelize-typescript';
 
 const sequelize =  new Sequelize({
-        ...
-        models: [__dirname + '/**/*.model.ts']
+  ...
+  models: [__dirname + '/**/*.model.ts']
 });
 // or
 sequelize.addModels([__dirname + '/**/*.model.ts']);
@@ -393,7 +394,7 @@ Team
      team.players.forEach(player => console.log(`Player ${player.name}`));
  })
 ```
-`player` 也同样会被解析 (当给 `find` 传入 `include: Player` 这个选项)
+`player` 也同样会被解析 (当给 `find` 传入 `include: Player` 这个选项时)
 
 ### 多对多
 ```typescript
@@ -432,7 +433,7 @@ class BookAuthor extends Model<BookAuthor> {
 ```
 
 ### 一对一
-对于 一对一 的关系，使用`@HasOne(...)`(关联的外键存在另一个模型) 和 `@BelongsTo(...)`(关联的外键存在本模型)
+对于 一对一 的关系，使用`@HasOne(...)`(关联的外键会被创建于另一个模型) 和 `@BelongsTo(...)`(关联的外键会被创建于本模型)
 
 ### `@ForeignKey`, `@BelongsTo`, `@HasMany`, `@HasOne`, `@BelongsToMany` API
 
@@ -454,11 +455,13 @@ class BookAuthor extends Model<BookAuthor> {
 | `@BelongsToMany(relatedModelGetter: () => typeof Model, through: string, foreignKey: string, otherKey: string)`               | sets `SourceModel.belongsToMany(RelatedModel, {through: throughString, ...})` while `as` is key of annotated property and `foreignKey`/`otherKey` are explicitly specified values                              |
 | `@BelongsToMany(relatedModelGetter: () => typeof Model, options: AssociationOptionsBelongsToMany)`                            | sets `SourceModel.belongsToMany(RelatedModel, {through: throughString, ...})` while `as` is key of annotated property and `options` are additional association values, including `foreignKey` and `otherKey`.  |
 
-Note that when using AssociationOptions, certain properties will be overwritten when the association is built, based on reflection metadata or explicit attribute parameters. For example, `as` will always be the annotated property's name, and `through` will be the explicitly stated value.
+
+请注意当使用 `AssociationOptions` 时，某些属性会在关联关系建立时被 `reflection metadata` 或 传入的属性所覆盖。
+For example, `as` will always be the annotated property's name, and `through` will be the explicitly stated value.
 
 ### 同一模型的多种关联
-*sequelize-typescript* resolves the foreign keys by identifying the corresponding class references.
-So if you define a model with multiple relations like
+*sequelize-typescript* 通过识别响应的类的引用来解析外键。
+所以说如果你像下方代码一样来建立多重关联：
 ```typescript
 @Table
 class Book extends Model<Book> {
@@ -488,8 +491,7 @@ class Person extends Model<Person> {
   proofedBooks: Book[];
 }
 ```
-*sequelize-typescript* cannot know which foreign key to use for which relation. So you have to add the foreign keys
-explicitly:
+*sequelize-typescript* 不知道去使用哪一个外键去建立对应关联，所以你需要像下方代码一样去明确外键：
 ```typescript
 
   // in class "Books":
@@ -507,13 +509,9 @@ explicitly:
   proofedBooks: Book[];
 ```
 
-### Type safe usage of auto generated functions
-With the creation of a relation, sequelize generates some method on the corresponding
-models. So when you create a 1:n relation between `ModelA` and `ModelB`, an instance of `ModelA` will
-have the functions `getModelBs`, `setModelBs`, `addModelB`, `removeModelB`, `hasModelB`. These functions still exist with *sequelize-typescript*.
-But TypeScript wont recognize them and will complain if you try to access `getModelB`, `setModelB` or
-`addModelB`. To make TypeScript happy, the `Model.prototype` of *sequelize-typescript* has `$set`, `$get`, `$add`
-functions.
+### 安全的使用自动生成函数 Type safe usage of auto generated functions
+当模型关联创建时，sequelize 会在对应的模型上绑定一些方法。所以在`modelA` 和 `modelB` 间创建一对多的关系时，`modelA` 的实例将会存在 `getModelBs`, `setModelBs`, `addModelB`, `removeModelB`, `hasModelB` 这些方法。这些同样可以在 *sequelize-typescript* 中使用，但在你访问 `getModelB`, `setModelB` 或者
+`addModelB` 时，Typescript 没办法正常的识别他们。为了在使用 TypeScript 时更加友好，*sequelize-typescript* 中的 `Model.prototype` 具有 `$set`, `$get`, `$add` 这几个函数。
 ```typescript
 @Table
 class ModelA extends Model<ModelA> {
@@ -529,7 +527,7 @@ class ModelB extends Model<ModelB> {
   a: ModelA;
 }
 ```
-To use them, pass the property key of the respective relation as the first parameter:
+如果要使用这些方法，请将该关联对应的键值作为第一个参数传入:
 ```typescript
 const modelA = new ModelA();
 
@@ -542,33 +540,32 @@ modelA.$remove('bs', /* instance */ ).then( /* ... */);
 modelA.$create('bs', /* value */ ).then( /* ... */);
 ```
 
-## Indexes
+## 索引
 
 ### `@Index`
-The `@Index` annotation can be used without passing any parameters.
+`@Index` 注解能在不传入任何参数的情况下使用。
 ```typescript
 @Table
 class Person extends Model<Person> {
-  @Index // Define an index with default name
+  @Index // 用默认名称定义一个索引
   @Column
   name: string;
 
-  @Index // Define another index
+  @Index // 定义另一个索引
   @Column
   birthday: Date;
 }
 ```
 
-To specify index and index field options, use
-an object literal (see [indexes define option](https://sequelize.org/v5/manual/models-definition.html#indexes)):
+通过传递对象来指定索引的相关设置 (查看 [索引定义选项](https://sequelize.org/v5/manual/models-definition.html#indexes) 文档):
 ```typescript
 @Table
 class Person extends Model<Person> {
-  @Index('my-index') // Define a multi-field index on name and birthday
+  @Index('my-index') // 给 name 和 birthday 定义多列索引
   @Column
   name: string;
 
-  @Index('my-index') // Add birthday as the second field to my-index
+  @Index('my-index') // 把 birthday 字段添加到 my-index 索引
   @Column
   birthday: Date;
 
@@ -598,14 +595,14 @@ class Person extends Model<Person> {
 
 #### Index API
 
-| Decorator                                | Description                                                                                               |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `@Index`                                 | adds new index on decorated field to `options.indexes`                                                    |
-| `@Index(name: string)`                   | adds new index or adds the field to an existing index with specified name                                 |
-| `@Table(options: IndexDecoratorOptions)` | sets both index and index field [options](https://sequelize.org/v5/manual/models-definition.html#indexes) |
+| Decorator                                | Description                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `@Index`                                 | 把被装饰的字段名作为新索引添加到 `options.indexes`                                               |
+| `@Index(name: string)`                   | 添加新的索引或将字段添加到指定名称的现有索引中                                                   |
+| `@Table(options: IndexDecoratorOptions)` | 通过 [配置](https://sequelize.org/v5/manual/models-definition.html#indexes) 来设置索引和索引字段 |
 
 ### `createIndexDecorator()`
-The `createIndexDecorator()` function can be used to create a decorator for an index with options specified with an object literal supplied as the argument. Fields are added to the index by decorating properties.
+`createIndexDecorator()` 函数能用来创建一个自定义装饰器，这个装饰器支持通过指定的属性来设置索引，传入装饰器的参数将被用来配置索引字段。
 ```typescript
 const SomeIndex = createIndexDecorator();
 const JobIndex = createIndexDecorator({
@@ -645,28 +642,28 @@ class Person extends Model<Person> {
 }
 ```
 
-## Repository mode
-The repository mode makes it possible to separate static operations like `find`, `create`, ... from model definitions.
-It also empowers models so that they can be used with multiple sequelize instances.
+## Repository 模式
+repository 模式可以把一些类似 `find`, `create` 等的静态方法从模型定义中分离出来，并且赋予了模型可以和多个 sequelize 实例一起使用的能力。
 
-### How to enable repository mode?
-Enable repository mode by setting `repositoryMode` flag:
+### 怎样启动 repository 模式?
+通过设置 `repositoryMode` 字段来开启 repository 模式:
 ```typescript
 const sequelize = new Sequelize({
   repositoryMode: true,
   ...,
 });
 ```
-### How to use repository mode?
-Retrieve repository to create instances or perform search operations:
+### 如何使用 repository 模式?
+通过操作 repository 来进行创建实例和查询的操作：
 ```typescript
 const userRepository = sequelize.getRepository(User);
 
 const luke = await userRepository.create({name: 'Luke Skywalker'});
 const luke = await userRepository.findOne({where: {name: 'luke'}});
 ```
-### How to use associations with repository mode?
-For now one need to use the repositories within the include options in order to retrieve or create related data:
+### 怎样在 repository 模式下使用关联?
+目前需要在使用 repository 时通过配置 `include` 参数来进行检索或创建相关数据
+
 ```typescript
 const userRepository = sequelize.getRepository(User);
 const addressRepository = sequelize.getRepository(Address);
@@ -674,10 +671,10 @@ const addressRepository = sequelize.getRepository(Address);
 userRepository.find({include: [addressRepository]});
 userRepository.create({name: 'Bear'}, {include: [addressRepository]});
 ```
-> ⚠️ This will change in the future: One will be able to refer the model classes instead of the repositories.
+> ⚠️ 未来会有变动：开发者应该去引用模型类而不是 repository
 
-### Limitations of repository mode
-Nested scopes and includes in general won't work when using `@Scope` annotation together with repository mode like:
+### repository 模式的限制
+当同时使用 `@Scope` 注解和 repository 模式时，嵌套作用域和 `include` 通常将不起作用
 ```typescript
 @Scopes(() => ({
   // includes
@@ -692,25 +689,25 @@ Nested scopes and includes in general won't work when using `@Scope` annotation 
 @Table
 class User extends Model<User> {}
 ```
-> ⚠️ This will change in the future: Simple includes will be implemented.
+> ⚠️ 未来会有变动: 单一的 `include` 将被实现
 
-## Model validation
-Validation options can be set through the `@Column` annotation, but if you prefer to use separate decorators for
-validation instead, you can do so by simply adding the validate options *as* decorators:
-So that `validate.isEmail=true` becomes `@IsEmail`, `validate.equals='value'` becomes `@Equals('value')`
-and so on. Please notice that a validator that expects a boolean is translated to an annotation without a parameter.
+## 模型校验
+校验项可以在 `@Column` 注解中设置，不过如果你更偏爱单独的装饰器来校验的话，你可以通过添加校验装饰器来实现：
+比方说 `validate.isEmail=true` 写作 `@IsEmail`、`validate.equals='value'` 写作 `@Equals('value')` 以此类推。
+需要注意的是，一个期望布尔值的校验器会被编译为一个不接收参数的注解。
 
-See sequelize [docs](https://sequelize.org/v5/manual/models-definition.html#validations)
-for all validators.
+查阅 sequelize [文档](https://sequelize.org/v5/manual/models-definition.html#validations)
+来了解所有的校验规则。
 
-### Exceptions
-The following validators cannot simply be translated from sequelize validator to an annotation:
+### 异常处理
 
-| Validator                       | Annotation                                                                                                                                                                  |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `validate.len=[number, number]` | `@Length({max?: number, min?: number})`                                                                                                                                     |
-| `validate[customName: string]`  | For custom validators also use the `@Is(...)` annotation: Either `@Is('custom', (value) => { /* ... */})` or with named function `@Is(function custom(value) { /* ... */})` |
+下面的校验器不能被简单的从一个 sequelize 校验器转换成修饰器：
 
+
+| 校验器                          | 注解                                                                                                                       |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `validate.len=[number, number]` | `@Length({max?: number, min?: number})`                                                                                    |
+| `validate[customName: string]`  | 自定义校验器可使用 `@Is(...)` 注解: `@Is('custom', (value) => { /* ... */})` 或 `@Is(function custom(value) { /* ... */})` |
 ### Example
 ```typescript
 const HEX_REGEX = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -766,11 +763,10 @@ export class Shoe extends Model<Shoe> {
 }
 ```
 
-## Scopes
-Scopes can be defined with annotations as well. The scope options are identical to native
-sequelize (See sequelize [docs](https://docs.sequelizejs.com/manual/tutorial/scopes.html) for more details)
+## 作用域
+作用域同样能使用装饰器来定义。作用域配置同原生 sequelize (查阅 sequelize [文档](https://docs.sequelizejs.com/manual/tutorial/scopes.html) 来了解作用域用法)
 
-### `@DefaultScope` and `@Scopes`
+### `@DefaultScope` 和 `@Scopes`
 ```typescript
 @DefaultScope(() => ({
   attributes: ['id', 'primaryColor', 'secondaryColor', 'producedAt']
@@ -807,12 +803,12 @@ export class ShoeWithScopes extends Model<ShoeWithScopes> {
 }
 ```
 
-## Hooks
-Hooks can be attached to your models. All Model-level hooks are supported. See [the related unit tests](test/models/Hook.ts) for a summary.
+## Hooks - 钩子
+Hooks(也称为生命周期事件)是在执行 sequelize 中的调用之前和之后调用的函数，所有模型上钩子都被支持。 查阅 [相关的单元测试](https://github.com/RobinBuschmann/sequelize-typescript/blob/master/test/models/Hook.ts) 来获得总结。
 
-Each hook must be a `static` method. Multiple hooks can be attached to a single method, and you can define multiple methods for a given hook.
+每一个钩子都必须为一个 `static` 方法，多个钩子可以被关联到一个方法，同时你也可以给一个钩子定义多个方法。
 
-The name of the method cannot be the same as the name of the hook (for example, a `@BeforeCreate` hook method cannot be named `beforeCreate`). That’s because Sequelize has pre-defined methods with those names.
+方法的函数名不能和钩子的函数名相同（比方说， `@BeforeCreate` 钩子不能被命名为 `beforeCreate`，因为这个名称的方法被 Sequelize 预定义过了）
 
 ```typescript
 @Table
@@ -835,51 +831,40 @@ export class Person extends Model<Person> {
 }
 ```
 
-## Why `() => Model`?
-`@ForeignKey(Model)` is much easier to read, so why is `@ForeignKey(() => Model)` so important? When it
-comes to circular-dependencies (which are in general solved by node for you) `Model` can be `undefined`
-when it gets passed to @ForeignKey. With the usage of a function, which returns the actual model, we prevent
-this issue.
+## 为何使用 `() => Model`?
+既然 `@ForeignKey(Model)` 可读性更高, 那么为什么要使用 `@ForeignKey(() => Model)` 呢? 当发生循环依赖时，`Model` 会为 `undefined` (通常 node 会为你解决)。当他被传递给 `@ForeignKey`时，我们通过使用一个返回了实际模型的函数来避免这个问题的发生。
 
-## Recommendations and limitations
+## 风格推荐和限制
 
-### One Sequelize instance per model (without repository mode)
-Unless you are using the [repository mode](#repository-mode), you won't be able to add one and the same model to multiple
-Sequelize instances with differently configured connections. So that one model will only work for one connection.
+###  每个模型对应一个 Sequelize 实例 (除 repository 模式)
+除非你使用 [repository 模式](#repository-模式), 你不能向连接配置不同的 Sequelize 实例添加一个相同模型。所以，一个模型仅适用于一个 Sequelize 连接。
 
-### One model class per file
-This is not only good practice regarding design, but also matters for the order
-of execution. Since Typescript creates a `__metadata("design:type", SomeModel)` call due to `emitDecoratorMetadata`
-compile option, in some cases `SomeModel` is probably not defined(not undefined!) and would throw a `ReferenceError`.
-When putting `SomeModel` in a separate file, it would look like `__metadata("design:type", SomeModel_1.SomeModel)`,
-which does not throw an error.
+### 每个文件存放一个模型类
 
-### Minification
-If you need to minify your code, you need to set `tableName` and `modelName`
-in the `DefineOptions` for `@Table` annotation. sequelize-typescript
-uses the class name as default name for `tableName` and `modelName`.
-When the code is minified the class name will no longer be the originally
-defined one (So that `class User` will become `class b` for example).
+这不仅仅是一个架构设计的好习惯，并且有利于命令的执行。由于 TypeScript 根据 `emitDecoratorMetadata` 这个编译选项创建了 `__metadata("design:type", SomeModel)`，在某些情况下， `SomeModel` 有可能没有被定义(不是 undefined!)，并且会出一个 `ReferenceError`。当把 `SomeModel` 放进一个单独的文件中，就相当于 `__metadata("design:type", SomeModel_1.SomeModel)`，这样的话就不会报错。
+
+### 文件压缩
+如果你有压缩代码的需求，为了 `@Table` 注解能正常使用，你需要设置在 `@DefineOptions` 中设置 `tableName` 和 `modelName`。sequelize-typescript 会使用 `tableName` 和 `modelName` 作为类的默认名称。当代码被压缩后，类名将不再是最初定义的那个了。（就像 `class User` 会变成 `class b`）
 
 
-# Contributing
+# 贡献
 
-To contribute you can:
-- Open issues and participate in discussion of other issues.
-- Fork the project to open up PR's.
-- Update the [types of Sequelize](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/sequelize).
-- Anything else constructively helpful.
+如果你想对这个开源项目贡献出自己的一份力量，你可以：
+- 提交 issue 或者 参与其他 issue 的讨论
+- Fork 这个项目来提交 PR
+- 丰富 [Sequelize 的类型声明](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/sequelize).
+- 提出任何有建设性的建议
 
-In order to open a pull request please:
-- Create a new branch.
-- Run tests locally (`npm install && npm run build && npm run cover`) and ensure your commits don't break the tests.
-- Document your work well with commit messages, a good PR description, comments in code when necessary, etc.
+为了提交一个PR，请:
+- 创建一个新的分支.
+- 完整的跑一遍测试流程 (`npm install && npm run build && npm run cover`) 并且确保你的提交能顺利通过测试。
+- 通过 commit 中的 message、详细的 PR 说明，必要时的代码注释等等来记录你的工作
 
-In order to update the types for sequelize please go to [the Definitely Typed repo](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/sequelize), it would also be a good
-idea to open a PR into [sequelize](https://github.com/sequelize/sequelize) so that Sequelize can maintain its own types, but that
-might be harder than getting updated types into microsoft's repo. The Typescript team is slowly trying to encourage
-npm package maintainers to maintain their own typings, but Microsoft still has dedicated and good people maintaining the DT repo,
-accepting PR's and keeping quality high.
+如果你想丰富 Sequelize 的类型声明，请去 [类型定义仓库](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/sequelize)，向 [sequelize](https://github.com/sequelize/sequelize) 提交一个 PR 也是一个好方法，那样子 Sequlize 就能维护自己的类型声明，不过这样也许比更新微软的类型声明库要更难。TypeScript 团队正在尝试去慢慢的鼓励 npm 包维护者去维护自己的类型声明，但 TypeScript 还是会有专门的人员去维护 DT repo，审核PR，来保证高质量。
 
-**Keep in mind `sequelize-typescript` does not provide typings for `sequelize`** - these are seperate things.
-A lot of the types in `sequelize-typescript` augment, refer to, or extend what sequelize already has.
+# 改进文档
+
+如果你发现文档中有哪些翻译的晦涩，或者不合理的地方，欢迎通过 issue 或者 PR 的方式来帮助改进
+
+**请牢记， `sequelize-typescript` 不提供 `sequelize` 的类型声明** - 这是不相关联的事情
+`sequelize-typescript` 参数中的许多类型都引用或扩展都是 sequelize 已经拥有的内容。
