@@ -18,21 +18,21 @@ sequelize-typescript [项目地址](https://github.com/RobinBuschmann/sequelize-
    - [多对多](#多对多)
    - [一对一](#一对一)
    - [`@ForeignKey`, `@BelongsTo`, `@HasMany`, `@HasOne`, `@BelongsToMany` API](#foreignkey-belongsto-hasmany-hasone-belongstomany-api)
-   - [使用 getter 和 setter](#type-safe-usage-of-auto-generated-functions)
-   - [同一模型的多种关联](#multiple-relations-of-same-models)
- - [索引](#indexes)
+   - [同一模型的多种关联](#同一模型的多种关联)
+   - [安全的使用自动生成函数](#安全的使用自动生成函数)
+ - [索引](#索引)
    - [`@Index` API](#index)
    - [`createIndexDecorator()` API](#createindexdecorator)
- - [Repository 模式](#repository-mode)
-   - [如何开启 repository 模式?](#how-to-enable-repository-mode)
-   - [如何使用 repository 模式?](#how-to-use-repository-mode)
-   - [如何在 repository 模式下关联?](#how-to-use-associations-with-repository-mode)
-   - [repository 模式的限制](#limitations-of-repository-mode)
- - [模型校验](#model-validation)
- - [作用域](#scopes)
- - [Hooks 钩子](#hooks)
- - [为何使用 `() => Model`?](#user-content-why---model)
- - [风格推荐和限制](#recommendations-and-limitations)
+ - [Repository 模式](#repository-模式)
+   - [如何开启 repository 模式?](#如何开启-repository-模式?)
+   - [如何使用 repository 模式?](#如何使用-repository-模式?)
+   - [如何在 repository 模式下使用关联?](#如何在-repository-模式下使用关联?)
+   - [repository 模式的限制](#repository-模式的限制)
+ - [模型校验](#模型校验)
+ - [作用域](#作用域)
+ - [Hooks 钩子](#Hooks-钩子)
+ - [为何使用 `() => Model`?](#user-content-为何使用---model)
+ - [风格推荐和限制](#风格推荐和限制)
 
 ## 安装
 *sequelize-typescript* 依赖 [sequelize](https://github.com/sequelize/sequelize), 点击查看 sequelize 的 [typescript 编码指南](https://docs.sequelizejs.com/manual/typescript.html) 和 [reflect-metadata](https://www.npmjs.com/package/reflect-metadata) 的详细文档
@@ -92,7 +92,7 @@ sequelize-typescript 目前使用 sequlize 官方的 TypeScript 定义
 ```
 
 ### Repository 模式
-`sequelize-typescript@1` 带来了 repository 模式. 点击 [这里](#repository-mode) 查看详情.
+`sequelize-typescript@1` 带来了 repository 模式. 点击 [这里](#repository-模式) 查看详情.
 
 
 ## 模型定义
@@ -157,7 +157,7 @@ class Person extends Model<Person> {}
 | `@DeletedAt` | 设置 `timestamps=true`, `paranoid=true` 和 `deletedAt='deletionDate'` |
 
 ### `@Column`
-`@Column` 注解能在不传入任何参数下使用，不过传入参数来让 js 类型可以被自行推断是相当有必要的(查看 [类型推断](#type-inference) 细节).
+`@Column` 注解能在不传入任何参数下使用，不过传入参数来让 js 类型可以被自行推断是相当有必要的(查看 [类型推断](#类型推断) 细节).
 ```typescript
   @Column
   name: string;
@@ -198,7 +198,7 @@ import {DataType} from 'sequelize-typescript';
 | `@Default(value: any)`            | 设置 `attribute.defaultValue` 为指定值     |
 | `@PrimaryKey`                     | 设置 `attribute.primaryKey=true`           |
 | `@Comment(value: string)`         | 设置 `attribute.comment` 为指定值          |
-| 校验器注解                        | 了解 [模型校验](#model-validation)         |
+| 校验器注解                        | 了解 [模型校验](#模型校验)                 |
 
 ### 类型推断
 以下类型能从 javascript 类型上自行推断，其他类型需要需要去手动指定。
@@ -509,7 +509,7 @@ class Person extends Model<Person> {
   proofedBooks: Book[];
 ```
 
-### 安全的使用自动生成函数 Type safe usage of auto generated functions
+### 安全的使用自动生成函数
 当模型关联创建时，sequelize 会在对应的模型上绑定一些方法。所以在`modelA` 和 `modelB` 间创建一对多的关系时，`modelA` 的实例将会存在 `getModelBs`, `setModelBs`, `addModelB`, `removeModelB`, `hasModelB` 这些方法。这些同样可以在 *sequelize-typescript* 中使用，但在你访问 `getModelB`, `setModelB` 或者
 `addModelB` 时，Typescript 没办法正常的识别他们。为了在使用 TypeScript 时更加友好，*sequelize-typescript* 中的 `Model.prototype` 具有 `$set`, `$get`, `$add` 这几个函数。
 ```typescript
@@ -645,7 +645,7 @@ class Person extends Model<Person> {
 ## Repository 模式
 repository 模式可以把一些类似 `find`, `create` 等的静态方法从模型定义中分离出来，并且赋予了模型可以和多个 sequelize 实例一起使用的能力。
 
-### 怎样启动 repository 模式?
+### 如何开启 repository 模式?
 通过设置 `repositoryMode` 字段来开启 repository 模式:
 ```typescript
 const sequelize = new Sequelize({
@@ -661,7 +661,7 @@ const userRepository = sequelize.getRepository(User);
 const luke = await userRepository.create({name: 'Luke Skywalker'});
 const luke = await userRepository.findOne({where: {name: 'luke'}});
 ```
-### 怎样在 repository 模式下使用关联?
+### 如何在 repository 模式下使用关联?
 目前需要在使用 repository 时通过配置 `include` 参数来进行检索或创建相关数据
 
 ```typescript
@@ -803,7 +803,7 @@ export class ShoeWithScopes extends Model<ShoeWithScopes> {
 }
 ```
 
-## Hooks - 钩子
+## Hooks 钩子
 Hooks(也称为生命周期事件)是在执行 sequelize 中的调用之前和之后调用的函数，所有模型上钩子都被支持。 查阅 [相关的单元测试](https://github.com/RobinBuschmann/sequelize-typescript/blob/master/test/models/Hook.ts) 来获得总结。
 
 每一个钩子都必须为一个 `static` 方法，多个钩子可以被关联到一个方法，同时你也可以给一个钩子定义多个方法。
